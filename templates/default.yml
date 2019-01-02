@@ -1,0 +1,83 @@
+#
+# Deployment of the azarus challenge & token contracts
+#
+#
+env: dev
+nodeos_endpoint: "http://127.0.0.1:7777"
+wallet:
+  #type: keosd
+  #url: "http://127.0.0.1:5555"
+  type: file
+  keys:
+    eosio:
+      private: 5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3
+    azarus:
+    oracle:
+    user:
+ 
+accounts:
+  azarusiocorp:
+    reset: true #if true will overwrite permissions even if account already exists
+    permissions:
+    # permission_name:
+    #   type: key or account
+    #   value: if key - must be defined in wallet
+    # permissions must be listed in hierarchical order
+      owner: 
+        type: key
+        value: azarus
+      active:
+        type: key
+        value: azarus
+        parent: owner
+      oracle: 
+        type: key
+        value: oracle
+        parent: active
+  azarusiouser:
+    reset: true
+    permissions:
+      owner: 
+        type: key
+        value: azarus
+      active:
+        type: key
+        value: azarus
+        parent: owner
+      join: 
+        type: key
+        value: user
+        parent: active
+  azachallenge:
+    reset: true
+    permissions:
+      owner: 
+        type: key
+        value: azarus
+      active:
+        type: key
+        value: azarus
+        parent: owner
+  azarustoken:
+    reset: true
+    permissions:
+      owner: 
+        type: key
+        value: azarus
+      active:
+        type: key
+        value: azarus
+        parent: owner
+
+contracts:
+  hello:
+    upgrade: true
+    contract_name: hello
+    account: azachallenge
+    permission: owner
+    post_actions: ~
+    # js calls to setup contract
+    verify_actions: ~
+    # js calls to verify contract
+
+test: ~

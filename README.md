@@ -1,5 +1,5 @@
 # AZAkazam - A TDD framework for EOS
-
+[![CircleCI](https://circleci.com/gh/azarusio/AZAkazam.svg?style=svg)](https://circleci.com/gh/azarusio/AZAkazam)
 -----------------------
 AZAkazam is a development, testing and deployment framework for EOS.IO, aiming to make life as an EOS developer easier. With AZAkazam, you get:
 

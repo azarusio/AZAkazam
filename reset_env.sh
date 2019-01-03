@@ -16,7 +16,6 @@ fi
 
 docker run --name eosio \
   --publish 7777:7777 \
-  --publish 127.0.0.1:5555:5555 \
   --volume "${dir}" \
   --detach \
   eosio/eos:v1.5.0 \

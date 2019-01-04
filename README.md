@@ -47,7 +47,7 @@ Getting your project up and running is fairly simple - here are the files you'll
 
 ## Templates
 The template files are YAML descriptors aimed at managing the deployments of the contracts. The `default.yml` should get your started.
-After each run, an updated version of the YAML is saved in the root directory, that way you can restart tests without needing to reset your local nodeos - just ron `node deploy.js 15436623.yml` where "15436623" is the latest timestamp.
+After each run, an updated version of the YAML is saved in the root directory, that way you can restart tests without needing to reset your local nodeos - just run `node deploy.js 15436623.yml` where "15436623" is the latest timestamp.
 
 The file has the following sections:
 * header: context about the deployment including the node url

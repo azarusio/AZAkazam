@@ -11,7 +11,7 @@ function eosTest(params){
 
 
   this.getPrivateKey = function(authorization){
-    [permission, account] = authorization.split("@")
+    [account, permission] = authorization.split("@")
     if(permission && account){
       var owner_key_name = params.accounts[account].permissions[permission].value
       return params.wallet.keys[owner_key_name].private
@@ -20,7 +20,7 @@ function eosTest(params){
     }
   }
   this.sendAction = async function(contract, action, parameters, authorization, privateKey){
-    [permission, account] = authorization.split("@")
+    [account, permission] = authorization.split("@")
     var signatureProvider = new JsSignatureProvider([privateKey])
     var rpc = new eosjs.JsonRpc(params.nodeos_endpoint, { 
       fetch 
@@ -53,6 +53,49 @@ function eosTest(params){
     return tx
   }
 
+  this.getTable =  async function(contract, table ){
+    var options = { 
+      method: 'POST',
+      url: params.nodeos_endpoint+'/v1/chain/get_table_by_scope',
+      body: { code: params.contracts[contract].account, table: table },
+      json: true
+    };
+
+    var table_info = await new Promise((resolve, reject) =>{
+      //console.log("requesting: "+ JSON.stringify(options))
+      request(options, function (error, response, body) {
+      if(error){
+        console.log(util.inspect(error, {showHidden: true, depth: null}))
+        reject(error)
+      }
+      else
+        if(body && body.rows && body.rows.length == 1)
+          resolve(body.rows[0])
+        else
+          reject(`Could not find table ${table} on account ${params.contracts[contract].account} for contract ${contract}`)
+      })
+    })
+
+
+    var options = { method: 'POST',
+      url: params.nodeos_endpoint+'/v1/chain/get_table_rows',
+      body: { json: true, scope: table_info.scope ,  code: params.contracts[contract].account, table: table },
+      json: true
+    };
+    //console.log("requesting: "+ JSON.stringify(options))
+    var table_data = await new Promise((resolve, reject) =>{
+      request(options, function (error, response, body) {
+        if(error){
+          console.log(util.inspect(error, {showHidden: true, depth: null}))
+          reject(error)
+        }
+        else
+          resolve(body)
+      })
+    })
+    return table_data
+  }
+  
   this.logTX = function(tx){
     var util = require('util')
     console.log(util.inspect(tx, {showHidden: true, depth: null}))

@@ -77,6 +77,11 @@ function eosHelper(params){
           key: params.wallet.keys[params.accounts[account].permissions[permission].value].public,
           weight: 1
         }]
+      }else if(params.accounts[account].permissions[permission].type == "account"){
+        [actor, perm] =  params.accounts[account].permissions[permission].value.split("@")
+        transaction_data.actions[0].data.auth.accounts= [
+          {permission:{actor: actor,permission: perm}, weight: 1}
+        ]
       }
       var rpc = new eosjs.JsonRpc(params.nodeos_endpoint, { 
         fetch 
@@ -145,7 +150,7 @@ function eosHelper(params){
           }]
         }
       
-        console.log(util.inspect(transaction_data, {showHidden: false, depth: null}))
+        //console.log(util.inspect(transaction_data, {showHidden: false, depth: null}))
         var rpc = new eosjs.JsonRpc(params.nodeos_endpoint, { 
           fetch 
         });
@@ -161,6 +166,7 @@ function eosHelper(params){
           expireSeconds: 30,
           broadcast: true
         })
+        console.log(`Account ${account} created`)
         resolve(tx)
       }catch(e){
         reject(e)
@@ -192,8 +198,8 @@ function eosHelper(params){
       new_account = !await accountExists(account)
       if( new_account)
         res = await createAccounts(account)
-      if(!new_account && params.accounts[account].reset)
-        res = await updateAccounts(account)
+      
+      res = await updateAccounts(account)
     }
   }
 
@@ -298,6 +304,71 @@ function eosHelper(params){
       }
     }
   }
+
+  this.linkAuths = async function(){
+    for(account of Object.keys(params.accounts)){
+      for(permission of Object.keys(params.accounts[account].permissions)){
+        if(params.accounts[account].permissions[permission].authorize){
+
+          var role = params.accounts[account].permissions.owner.value
+          console.log(`using role ${role} and key ${params.wallet.keys[role].private}`)
+          var signatureProvider = new JsSignatureProvider([params.wallet.keys[role].private])        
+          var rpc = new eosjs.JsonRpc(params.nodeos_endpoint, { 
+            fetch 
+          });
+          var api = new eosjs.Api({ 
+            rpc, 
+            signatureProvider, 
+            textDecoder: new TextDecoder(), 
+            textEncoder: new TextEncoder() 
+          }); 
+
+          for(functions of params.accounts[account].permissions[permission].authorize){
+            [code, type] =  functions.split("::")
+
+            var transaction_data = {
+              actions: [{
+                  account: 'eosio',
+                  name: 'linkauth',
+                  authorization: [{
+                      actor: account,
+                      permission: "owner",
+                  }],
+                  data: {
+                      account: account,
+                      code: params.contracts[code].account,
+                      type: type,
+                      requirement: permission
+                  },
+              }]
+            }
+  
+            //console.log(util.inspect(transaction_data, {showHidden: false, depth: null}))
+            try{
+              var tx = await api.transact(transaction_data, {
+                  blocksBehind: 3,
+                  expireSeconds: 30,
+                  broadcast: true
+              });
+              //console.log(util.inspect(tx, {showHidden: false, depth: null}))
+              console.log(`linked permission ${permission} from account ${account} to function ${type} contract ${code}`)
+            }catch(e){
+              if(e.json.error.name == "action_validate_exception")
+                console.log(`link for   permission ${permission} from account ${account} to function ${type} contract ${code} hasn't changed - no update`)
+              else{
+                console.log(util.inspect(transaction_data, {showHidden: false, depth: null}))
+                console.log(util.inspect(e, {showHidden: false, depth: null}))
+                throw new Error(e)
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+
   this.runTests = function(){
     var Mocha = require('mocha'),
     fs = require('fs'),

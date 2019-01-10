@@ -11,12 +11,26 @@ wallet:
   keys:
     eosio:
       private: 5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3
-    azarus:
-    oracle:
+    master:
     user:
+    oracle:
  
 accounts:
-  azarusiocorp:
+  useraccnt:
+    reset: true
+    permissions:
+      owner: 
+        type: key
+        value: master
+      active:
+        type: key
+        value: master
+        parent: owner
+      user:
+        type: key
+        value: user
+        parent: active
+  oracleaccnt:
     reset: true #if true will overwrite permissions even if account already exists
     permissions:
     # permission_name:
@@ -25,55 +39,37 @@ accounts:
     # permissions must be listed in hierarchical order
       owner: 
         type: key
-        value: azarus
+        value: master
       active:
         type: key
-        value: azarus
+        value: master
         parent: owner
       oracle: 
         type: key
         value: oracle
         parent: active
-  azarusiouser:
-    reset: true
-    permissions:
-      owner: 
-        type: key
-        value: azarus
-      active:
-        type: key
-        value: azarus
-        parent: owner
-      join: 
-        type: key
-        value: user
+        authorize:
+          - hello::hi
+      user:
+        type: account
+        value: useraccnt@user
         parent: active
-  azachallenge:
+  helloaccnt:
     reset: true
     permissions:
       owner: 
         type: key
-        value: azarus
+        value: master
       active:
         type: key
-        value: azarus
-        parent: owner
-  azarustoken:
-    reset: true
-    permissions:
-      owner: 
-        type: key
-        value: azarus
-      active:
-        type: key
-        value: azarus
+        value: master
         parent: owner
 
 contracts:
   hello:
     upgrade: true
     contract_name: hello
-    account: azachallenge
+    account: helloaccnt
     permission: owner
     post_actions: ~
     # js calls to setup contract

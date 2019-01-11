@@ -15,15 +15,16 @@ AZAkazam is a development, testing and deployment framework for EOS.IO, aiming t
 
 -----------------------
 ## Setup
-Start by pulling this repo. You can operate in 2 modes: local or containerized. 
+Start by pulling this repo. You can operate in 2 modes: local or containerized.
 Local is geared towards on-premises development, while dockerized is more aimed at CI.
 
 ### Local
-If operating locally: 
+If operating locally:
 * You'll need to have the EOSIO.CDT toolkit installed. You can find the setup instructions here: https://developers.eos.io/eosio-home/v1.7.0/docs/installing-the-contract-development-toolkit
 
-* To use the default hello world test template, you'll need a local Nodeos image. 
-You can set one up with docker by running it with `./reset_env.sh`
+* To use the default hello world test template, you'll need a local Nodeos image.
+You can set one up with docker by running it with `source reset_env.sh -d`
+Or you may use the locally installed instance `source reset_env.sh -l`
 
 * You'll need node v10 - installation instructions can be found here: https://nodejs.org/en/download/package-manager/
 At the root of this repo, run `npm i` to install dependencies
@@ -43,7 +44,7 @@ Getting your project up and running is fairly simple - here are the files you'll
 |-> package.json: you may change the name of the default template there
 |-> templates: A directory to save your [deployment templates](#Templates)
 |-> src: The directory to save the sources of your smart contracts
-|-> tests: The directory to save your Mocha test 
+|-> tests: The directory to save your Mocha test
 
 ## Templates
 The template files are YAML descriptors aimed at managing the deployments of the contracts. The `default.yml` should get your started.
@@ -64,10 +65,10 @@ Tests come with a handy helper:
 `global.EOSContract.getPrivateKey("active@azarusiocorp")` will retrieve the private key for a permission/account
 ```
  global.EOSContract.sendAction(
-      'hello', 
-      'hi', 
-      {user: "bob"}, 
-      "active@azarusiocorp", 
+      'hello',
+      'hi',
+      {user: "bob"},
+      "active@azarusiocorp",
       global.EOSContract.getPrivateKey("active@azarusiocorp")
       )
 ```

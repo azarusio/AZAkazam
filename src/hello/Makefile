@@ -26,7 +26,7 @@ targets		:= hello.wasm hello.abi
 all: $(targets)
 
 %.wasm: %.cpp
-	$(CXX) $(CXXFLAGS) -c $? -o $@
+	$(CXX) $(CXXFLAGS) $? -o $@
 
 clean:
 	-rm -f $(targets)
